@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const passport = require('passport');
 const path = require('path');
+const fs = require('fs');
 var LtiStrategy = require('./passport-lti').Strategy;
 const bodyParser = require('body-parser');
 var pug = require('pug');
@@ -30,7 +31,13 @@ app.get('/', function (req, res) {
 });
 
 app.get('/blah', function (req, res) {
-    res.render('test');
+    var filename = path.join(__dirname, 'blank.pdf');
+    var file = fs.createReadStream(filename);
+    var stat = fs.statSync(filename);
+    res.setHeader('Content-Length', stat.size);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=page.pdf');
+    file.pipe(res);
 });
 
 app.get('/:path(*)/lti.xml', function(req, res) {
