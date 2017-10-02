@@ -30,7 +30,7 @@ app.get('/', function (req, res) {
     res.render('index');
 });
 
-app.get('/blah', function (req, res) {
+app.get('/blah.pdf', function (req, res) {
     var filename = path.join(__dirname, 'blank.pdf');
     var file = fs.createReadStream(filename);
     var stat = fs.statSync(filename);
