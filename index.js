@@ -26,7 +26,18 @@ app.get('/', function (req, res) {
     res.render('index');
 });
 
-app.post('/lti/:path(*)', function(req, res, next) {
+app.get('/:path(*)/lti.xml', function(req, res) {
+    var hash = {
+	title: 'Otterscan',
+	description: '',
+	launchUrl: req.protocol + ':' + req.hostname + '/' + req.params.path + '/lti',
+	domain: req.hostname
+    };
+        
+    res.render('config', hash);
+});
+
+app.post('/:path(*)/lti', function(req, res, next) {
   passport.authenticate('lti', function(err, user, info) {
       if (err) { return next(err); }
       if (!user) { return res.redirect('/'); }
