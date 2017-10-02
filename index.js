@@ -30,7 +30,7 @@ app.get('/:path(*)/lti.xml', function(req, res) {
     var hash = {
 	title: 'Otterscan',
 	description: '',
-	launchUrl: req.protocol + '://' + req.hostname + '/' + req.params.path + '/lti',
+	launchUrl: 'https://' + req.hostname + '/' + req.params.path + '/lti',
 	domain: req.hostname
     };
         
