@@ -36,7 +36,6 @@ app.get('/blah', function (req, res) {
     var stat = fs.statSync(filename);
     res.setHeader('Content-Length', stat.size);
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=page.pdf');
     file.pipe(res);
 });
 
