@@ -41,11 +41,17 @@ app.get('/', function (req, res) {
 app.get('/:code/:path(*)', function (req, res) {
     if (secretCode(req.params.path) == req.params.code) {
 	var filename = path.join(__dirname, req.params.path);
-	var file = fs.createReadStream(filename);
-	var stat = fs.statSync(filename);
-	res.setHeader('Content-Length', stat.size);
-	res.setHeader('Content-Type', 'application/pdf');
-	file.pipe(res);
+	fs.stat('/tmp/world', function(err, stats) {
+	    if (err) {
+		res.status(500).send(err);
+		return;
+	    }
+	    
+	    var file = fs.createReadStream(filename);
+	    res.setHeader('Content-Length', stats.size);
+	    res.setHeader('Content-Type', 'application/pdf');
+	    file.pipe(res);
+	});
     } else {
 	res.status(403).send('You do not have the passphrase for that file.');
     }
