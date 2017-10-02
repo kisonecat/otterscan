@@ -5,6 +5,9 @@ const path = require('path');
 var LtiStrategy = require('./passport-lti').Strategy;
 const bodyParser = require('body-parser');
 var pug = require('pug');
+const uuidv1 = require('uuid/v1');
+var request = require('request');
+var keyAndSecret = require("./key-and-secret.json");
 
 var config = {};
 config.port = process.env.PORT || 3000;
@@ -26,6 +29,10 @@ app.get('/', function (req, res) {
     res.render('index');
 });
 
+app.get('/blah', function (req, res) {
+    res.render('test');
+});
+
 app.get('/:path(*)/lti.xml', function(req, res) {
     var hash = {
 	title: 'Otterscan',
@@ -37,12 +44,58 @@ app.get('/:path(*)/lti.xml', function(req, res) {
     res.render('config', hash);
 });
 
+var pug = require('pug');
+var passback = pug.compileFile(path.join(__dirname,'views/passback.pug'));
+
+function submitAssignment(req, res, profile, callback) {
+    var redirect = 'https://' + req.hostname + '/' + req.params.path;
+    var pox = passback({
+	messageIdentifier: uuidv1(),
+	resultDataUrl: redirect,
+	sourcedId: profile.lis_result_sourcedid
+    });
+				
+    var url = profile.lis_outcome_service_url;
+					
+    var oauth = {
+	callback: "about:blank",
+	body_hash: true,			
+	consumer_key: keyAndSecret.key,
+	consumer_secret: keyAndSecret.secret,
+	signature_method: profile.oauth_signature_method
+    };
+
+    request.post({
+	url: url,
+	body: pox,
+	oauth: oauth,
+	headers: {
+	    'Content-Type': 'application/xml',
+	}
+    }, function(err, response, body) {
+	if (err) {
+	    callback(err);
+	} else {
+	    res.redirect(redirect);
+	    callback(null, response);
+	}
+    });
+}
+
 app.post('/:path(*)/lti', function(req, res, next) {
   passport.authenticate('lti', function(err, user, info) {
       if (err) { return next(err); }
       if (!user) { return res.redirect('/'); }
+
       console.log(user);
-      res.render('index');	  
+      
+      submitAssignment( req, res, user, function(err, result) {
+	  if (err) {
+	      next(err);
+	  } else {
+	      console.log(result);
+	  }
+      });
 
   })(req, res, next);
 

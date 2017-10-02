@@ -3,6 +3,11 @@ var util = require('util')
   , _ = require('underscore')
   , lti = require("ims-lti");
 
+
+var keyAndSecret = require("./key-and-secret.json");
+
+
+
 function LtiStrategy(options, verify) {
     this.name = 'lti';
     this._verify = verify;
@@ -30,8 +35,6 @@ LtiStrategy.prototype.authenticate = function(req) {
 
     var profile = req.body;
     
-    var keyAndSecret = { key: "key", secret: "secret" };
-
     self.provider = new lti.Provider(keyAndSecret.key, keyAndSecret.secret);
     
     self.provider.valid_request(myRequest, function(err, isValid) {
