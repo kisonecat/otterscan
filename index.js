@@ -41,7 +41,7 @@ app.get('/', function (req, res) {
 app.get('/:code/:path(*)', function (req, res) {
     if (secretCode(req.params.path) == req.params.code) {
 	var filename = path.join(__dirname, req.params.path);
-	fs.stat('/tmp/world', function(err, stats) {
+	fs.stat(filename, function(err, stats) {
 	    if (err) {
 		res.status(500).send(err);
 		return;
