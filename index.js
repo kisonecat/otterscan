@@ -9,10 +9,18 @@ var pug = require('pug');
 const uuidv1 = require('uuid/v1');
 var request = require('request');
 var keyAndSecret = require("./key-and-secret.json");
+const crypto = require('crypto');
 
 var config = {};
 config.port = process.env.PORT || 3000;
 config.root = process.env.ROOT_URL || ('http://localhost:' + config.port);
+
+function secretCode(filename) {
+    var code = crypto.createHash('sha256').update(filename + keyAndSecret.secret, 'utf8').digest('hex');
+    return crypto.createHash('sha256').update(code + keyAndSecret.secret, 'utf8').digest('hex');
+}
+
+console.log( secretCode('blank.pdf') );
 
 function ltiLogin (req, identifier, profile, done) {
     done(null, profile);
@@ -30,13 +38,17 @@ app.get('/', function (req, res) {
     res.render('index');
 });
 
-app.get('/blah.pdf', function (req, res) {
-    var filename = path.join(__dirname, 'blank.pdf');
-    var file = fs.createReadStream(filename);
-    var stat = fs.statSync(filename);
-    res.setHeader('Content-Length', stat.size);
-    res.setHeader('Content-Type', 'application/pdf');
-    file.pipe(res);
+app.get('/:code/:path(*)', function (req, res) {
+    if (secretCode(req.params.path) == req.params.code) {
+	var filename = path.join(__dirname, req.params.path);
+	var file = fs.createReadStream(filename);
+	var stat = fs.statSync(filename);
+	res.setHeader('Content-Length', stat.size);
+	res.setHeader('Content-Type', 'application/pdf');
+	file.pipe(res);
+    } else {
+	res.status(403).send('You do not have the passphrase for that file.');
+    }
 });
 
 app.get('/:path(*)/lti.xml', function(req, res) {
@@ -54,7 +66,10 @@ var pug = require('pug');
 var passback = pug.compileFile(path.join(__dirname,'views/passback.pug'));
 
 function submitAssignment(req, res, profile, callback) {
-    var redirect = 'https://' + req.hostname + '/' + req.params.path;
+    var completePath = 'users/' + profile.custom_canvas_user_id + '/' + req.params.path;
+    
+    var redirect = 'https://' + req.hostname + '/' + secretCode(completePath) + '/' + completePath;
+    
     var pox = passback({
 	messageIdentifier: uuidv1(),
 	resultDataUrl: redirect,
