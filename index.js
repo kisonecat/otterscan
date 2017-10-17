@@ -92,6 +92,7 @@ function submitAssignment(req, res, profile, callback) {
 	signature_method: profile.oauth_signature_method
     };
 
+    /*
     request.post({
 	url: url,
 	body: pox,
@@ -107,6 +108,11 @@ function submitAssignment(req, res, profile, callback) {
 	    callback(null, response);
 	}
     });
+    */
+
+    // TODO: only SUBMIT ONCE
+    res.redirect(redirect);
+    callback(null, {});    
 }
 
 app.post('/:path(*)/lti', function(req, res, next) {
