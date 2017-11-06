@@ -61,27 +61,8 @@ app.use('/node_modules', express.static(path.join(__dirname, 'node_modules'), {m
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 function protocolAndHostname( req ) {
-    return 'http://' + req.hostname + ':3000/';
+    return 'https://' + req.hostname + '/';
 }
-
-app.get('/:code/:path(*)', function (req, res) {
-    if (secretCode(req.params.path) == req.params.code) {
-	var filename = path.join(__dirname, req.params.path);
-	fs.stat(filename, function(err, stats) {
-	    if (err) {
-		res.status(500).send(err);
-		return;
-	    }
-	    
-	    var file = fs.createReadStream(filename);
-	    res.setHeader('Content-Length', stats.size);
-	    res.setHeader('Content-Type', 'application/pdf');
-	    file.pipe(res);
-	});
-    } else {
-	res.status(403).send('You do not have the passphrase for that file.');
-    }
-});
 
 app.get('/:path(*)/lti.xml', function(req, res) {
     var hash = {
@@ -219,6 +200,27 @@ app.post('/2/:path(*)/lti', function(req, res, next) {
   })(req, res, next);
 
 });
+
+app.get('/:code/:path(*)', function (req, res) {
+    if (secretCode(req.params.path) == req.params.code) {
+	var filename = path.join(__dirname, req.params.path);
+	fs.stat(filename, function(err, stats) {
+	    if (err) {
+		res.status(500).send(err);
+		return;
+	    }
+	    
+	    var file = fs.createReadStream(filename);
+	    res.setHeader('Content-Length', stats.size);
+	    res.setHeader('Content-Type', 'application/pdf');
+	    file.pipe(res);
+	});
+    } else {
+	res.status(403).send('You do not have the passphrase for that file.');
+    }
+});
+
+
 
 app.listen(config.port, function () {
     console.log('otterscan on port ' + config.port);
