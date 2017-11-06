@@ -64,6 +64,7 @@ function protocolAndHostname( req ) {
     return 'http://' + req.hostname + ':3000/';
 }
 
+/*
 app.get('/:path(*)/lti.xml', function(req, res) {
     var hash = {
 	title: 'Otterscan',
@@ -74,6 +75,7 @@ app.get('/:path(*)/lti.xml', function(req, res) {
         
     res.render('config', hash);
 });
+*/
 
 var pug = require('pug');
 var passback = pug.compileFile(path.join(__dirname,'views/passback.pug'));
