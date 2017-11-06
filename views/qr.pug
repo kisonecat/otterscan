@@ -1,0 +1,33 @@
+doctype html
+html(lang="en")
+  head
+    title= otterscan
+    script(type="text/javascript",src="/public/javascript/instascan.min.js")
+  body
+    h1 Otterscan
+    if code && valid
+      p You are ready to submit your exam pages in Canvas.
+    if code && !valid
+      p Your code (<span style="font-family: Courier;">#{code}</span>) is not valid.
+    if (code && !valid) || (!code)
+      form(id="myform",action="/qr/",method="post")
+        label(for="code") Your receipt code:&nbsp;
+        input(id="inputbox",type="text",name="code")
+        input(type="submit",value="Submit")
+        video(id="preview")
+      script(type="text/javascript")
+        | let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+        | scanner.addListener('scan', function (content) {
+        | if (content.match(/.*qr\//)) {
+        | document.getElementById("inputbox").value = content.replace(/.*qr\//,'');
+        | document.getElementById("myform").submit();
+        | }});
+        | Instascan.Camera.getCameras().then(function (cameras) {
+        | if (cameras.length > 0) {
+        |  scanner.start(cameras[0]);
+        | } else {
+        |  console.error('No cameras found.');
+        | }
+        | }).catch(function (e) {
+        | console.error(e);
+        | });

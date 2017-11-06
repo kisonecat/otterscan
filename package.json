@@ -1,6 +1,6 @@
 {
   "name": "otterscan",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "otterscan submits scanned exams over LTI",
   "main": "index.js",
   "scripts": {
@@ -9,10 +9,14 @@
   "author": "Jim Fowler",
   "license": "AGPL-3.0",
   "dependencies": {
+    "bubble_babble": "kisonecat/bubble_babble",
+    "cookie-parser": "^1.4.3",
     "express": "^4.16.1",
     "ims-lti": "^3.0.2",
+    "instascan": "^1.0.0",
     "passport": "^0.4.0",
     "pug": "^2.0.0-rc.4",
+    "redis": "^2.8.0",
     "request": "^2.83.0",
     "underscore": "^1.8.3",
     "uuid": "^3.1.0"
